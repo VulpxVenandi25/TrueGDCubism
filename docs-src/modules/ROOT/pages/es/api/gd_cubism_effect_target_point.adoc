@@ -1,0 +1,134 @@
+= GDCubismEffectTargetPoint
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ../../res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Desc
+
+Al colocarlo como elemento hijo de xref:./gd_cubism_user_model.adoc[], puedes hacer que la cara y los ojos miren hacia las coordenadas especificadas.
+
+NOTE: Necesitas configurar previamente el modelo Live2D para usar este elemento.
+
+Si deseas mover los ojos a la posición donde arrastras el puntero del ratón en la pantalla, usa el siguiente código para actualizar la posición actual en _GDCubismEffectTargetPoint_.
+
+
+[source, gdscript, numlines]
+----
+func _input(event):
+    if event as InputEventMouseButton:
+        pressed = event.is_pressed()
+
+    if event as InputEventMouseMotion:
+        if pressed == true:
+            var calc_pos: Vector2 = $GDCubismUserModel.to_local(event.position) * Vector2(1, -1)
+            $GDCubismUserModel/GDCubismEffectTargetPoint.set_target(calc_pos.normalized())
+        else:
+            $GDCubismUserModel/GDCubismEffectTargetPoint.set_target(Vector2.ZERO)
+----
+
+
+== Properties
+
+[cols="3", frame=none, grid=none]
+|===
+>|String <|<<id-property-body_angle_x,body_angle_x>> |[default: "ParamBodyAngleX"]
+>|float <|<<id-property-body_range,body_range>> |[default: 10.0]
+
+>|String <|<<id-property-eyes_ball_x,eyes_ball_x>> |[default: "ParamEyeBallX"]
+>|String <|<<id-property-eyes_ball_y,eyes_ball_y>> |[default: "ParamEyeBallX"]
+>|float <|<<id-property-eyes_range,eyes_range>> |[default: 1.0]
+
+>|String <|<<id-property-head_angle_x,head_angle_x>> |[default: "ParamAngleX"]
+>|String <|<<id-property-head_angle_y,head_angle_y>> |[default: "ParamAngleY"]
+>|String <|<<id-property-head_angle_z,head_angle_z>> |[default: "ParamAngleZ"]
+>|float <|<<id-property-head_range,head_range>> |[default: 30.0]
+|===
+
+
+== Methods
+
+[cols="2",frame=none,grid=none]
+|===
+>|Vector2 <|get_target()
+>|void <|set_target(target: Vector2)
+|===
+
+
+== Signals
+== Enumerations
+== Constants
+== Property Descriptions
+
+[[id-property-body_angle_x]]
+String body_angle_x [default: "ParamBodyAngleX"]::
+Especifica el _ID_ utilizado para cambiar la orientación del cuerpo con set_target.
+
+[[id-property-body_range]]
+String body_range [default: 10.0]::
+Especifica cuánto mover el _ID_ especificado con _body_angle_x_. +
+Cuanto mayor sea el valor, más sensible será la respuesta, y si especificas 0.0, no responderá.
+
+[[id-property-eyes_ball_x]]
+String eyes_ball_x [default: "ParamEyeBallX"]::
+Especifica el _ID_ utilizado para cambiar la línea de visión (dirección de la pupila) con set_target.
+
+[[id-property-eyes_ball_y]]
+String eyes_ball_y [default: "ParamEyeBallX"]::
+Especifica el _ID_ utilizado para cambiar la línea de visión (dirección de la pupila) con set_target.
+
+[[id-property-eyes_range]]
+String eyes_range [default: 1.0]::
+Especifica cuánto mover el _ID_ especificado con _eyes_ball_x_, _eyes_ball_x_. +
+Cuanto mayor sea el valor, más sensible será la respuesta, y si especificas 0.0, no responderá.
+
+[[id-property-head_angle_x]]
+String head_angle_x [default: "ParamHeadAngleX"]::
+Especifica el _ID_ utilizado para cambiar la línea de visión (dirección de la pupila) con set_target.
+
+[[id-property-head_angle_y]]
+String head_angle_y [default: "ParamHeadAngleY"]::
+Especifica el _ID_ utilizado para cambiar la línea de visión (dirección de la pupila) con set_target.
+
+[[id-property-head_angle_z]]
+String head_angle_z [default: "ParamHeadAngleZ"]::
+Especifica el _ID_ utilizado para cambiar la línea de visión (dirección de la pupila) con set_target.
+
+[[id-property-head_range]]
+String head_range [default: 3.0]::
+Especifica cuánto mover el _ID_ especificado con _head_angle_x_, _head_angle_y_, _head_angle_z_. +
+Cuanto mayor sea el valor, más sensible será la respuesta, y si especificas 0.0, no responderá.
+
+
+== Method Descriptions
+
+[[id-method-get_target]]
+Vector2 get_target()::
+Obtiene la dirección hacia la que mira el modelo Live2D.
+
+[[id-method-set_target]]
+void set_target(target: Vector2)::
+Establece la dirección hacia la que mira el modelo Live2D. +
+La dirección que se puede establecer está en el rango de -1.0 a 1.0 tanto para x como para y. +
+Si pasas un valor que excede el rango, se contendrá dentro del rango. +
++
+Las coordenadas a especificar no son las coordenadas de la pantalla, sino el rango desde el centro del Nodo donde se pega la textura. +
+
+* x: 0.0, y: 0.0 Frente
+* x: -1.0, y: 0.0 Izquierda de la pantalla
+* x: 1.0, y: 0.0 Derecha de la pantalla
+* x: 0.0, y: -1.0 Parte inferior de la pantalla
+* x: 0.0, y: 1.0 Parte superior de la pantalla

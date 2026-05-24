@@ -1,0 +1,79 @@
+= GDCubismParameter
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ../../res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Desc
+
+Elementos contenidos en el _Array_ devuelto por la función _get_parameters_ de xref:./gd_cubism_user_model.adoc[].
+
+Al escribir un valor en _value_ de esta clase, puedes modificar el parámetro del modelo Live2D.
+
+
+
+== Properties
+
+[cols="3",frame=none,grid=none]
+|===
+>|float <|<<id-property-default_value,default_value>> |[default: 0.0]
+>|bool <|<<id-property-hold,hold>> |[default: false]
+>|float <|<<id-property-maximum_value,maximum_value>> |[default: 0.0]
+>|float <|<<id-property-minimum_value,minimum_value>> |[default: 0.0]
+|===
+
+
+== Methods
+[cols="2",frame=none,grid=none]
+|===
+>|void <|reset()
+|===
+
+
+== Enumerations
+enum Type::
+* NORMAL = 0
+* BLEND_SHAPE = 1
+
+
+== Property Descriptions
+
+[[id-property-default_value]]
+float default_value [default: 0.0]::
+El valor inicial del parámetro que posee esta clase.
+
+
+[[id-property-maximum_value]]
+float maximum_value [default: 0.0]::
+El valor máximo que se puede establecer para el parámetro que posee esta clase.
+
+
+[[id-property-minimum_value]]
+float minimum_value [default: 0.0]::
+El valor mínimo que se puede establecer para el parámetro que posee esta clase.
+
+
+[[id-property-hold]]
+bool hold [default: false]::
+Si es true, los parámetros que establezcas tendrán prioridad incluso si se configura una animación o expresión.
+
+
+== Method Descriptions
+
+[[id-method-reset]]
+void reset()::
+Restablece el valor actualmente establecido a _default_value_. +
+El estado de retención también se elimina.

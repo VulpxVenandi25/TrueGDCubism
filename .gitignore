@@ -19,7 +19,7 @@ mono_crash.*.json
 # for GDCubism
 .DS_Store
 .sconsign.dblite
-src/gen
+src/gen/
 *.os
 *.obj
 *.exp
@@ -27,7 +27,7 @@ src/gen
 *.csproj.old
 
 # for Antora
-docs
+docs/
 docs-site/node_modules
 docs-site/package-lock.json
 docs-site/package.json
@@ -37,8 +37,11 @@ node_modules
 package-lock.json
 package.json
 
-
 # for Experimental
 thirdparty/CubismNativeFramework
 thirdparty/CubismSdkForNative*
+
+# User-provided Live2D models (in demo)
+demo/examples/res/live2d/
+demo/models/*/
 

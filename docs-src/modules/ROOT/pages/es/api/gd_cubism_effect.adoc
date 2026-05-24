@@ -1,0 +1,39 @@
+= GDCubismEffect
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ../../res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Desc
+== Properties
+
+[cols="3",frame=none,grid=none]
+|===
+>|bool <|active |[default: true]
+|===
+
+
+== Methods
+== Signals
+== Enumerations
+== Constants
+== Property Descriptions
+
+bool active [default: true]::
+Cuando este valor es _true_, se llaman a las funciones __cubism_prologue_, __cubism_process_, __cubism_epilogue_.
+
+
+== Method Descriptions

@@ -1,0 +1,45 @@
+= GDCubismMotionQueueEntryHandle
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ../../res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Desc
+
+Los valores de retorno de la función _start_motion_ y la función _start_random_motion_ de xref:./gd_cubism_user_model.adoc[].
+
+
+== Properties
+
+[cols="3",frame=none,grid=none]
+|===
+>|HandleError <|error |[default: "FAILED"]
+|===
+
+
+== Enumerations
+
+enum HandleError::
+* OK = 0 +
+Éxito
+* FAILED = 1 +
+Fallo
+
+
+== Property Descriptions
+
+HandleError error [default: 1]::
+Comprueba si la llamada a la función _start_motion_ y a la función _start_random_motion_ de xref:./gd_cubism_user_model.adoc[] fue exitosa.

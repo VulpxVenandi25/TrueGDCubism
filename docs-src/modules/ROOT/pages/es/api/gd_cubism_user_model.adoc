@@ -1,0 +1,491 @@
+= GDCubismUserModel
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ../../res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Desc
+
+Esta es una subclase de _SubViewport_ para cargar el modelo Live2D, generar la _Textura_ necesaria para la visualización y realizar operaciones.
+
+
+
+== Properties
+
+[cols="3",frame=none,grid=none]
+|===
+>|Vector2 <|<<id-property-adjust_position,adjust_position>> |[default: Vector2(0, 0)]
+>|float <|<<id-property-adjust_scale,adjust_scale>> |[default: 1.0]
+>|String <|<<id-property-assets,assets>> |[default: ""]
+>|bool <|<<id-property-auto_scale,auto_scale>> |[default: true]
+>|bool <|<<id-property-load_expressions,load_expressions>> |[default: true]
+>|bool <|<<id-property-load_motions,load_motions>> |[default: true]
+>|Vector2i <|<<id-property-mask_viewport_size,mask_viewport_size>> |[default: Vector2i(0, 0)]
+>|ParameterMode <|<<id-property-parameter_mode,parameter_mode>> |[default: 0]
+>|bool <|<<physics_evaluate>> |[default: true]
+>|MotionProcessCallback <|<<id-property-playback_process_mode,playback_process_mode>> |[default: 1]
+>|bool <|<<pose_update>> |[default: true]
+>|Shader <|<<id-property-shader_add,shader_add>> |
+>|Shader <|<<id-property-shader_mask,shader_mask>> |
+>|Shader <|<<id-property-shader_mask_add,shader_mask_add>> |
+>|Shader <|<<id-property-shader_mask_add_inv,shader_mask_add_inv>> |
+>|Shader <|<<id-property-shader_mask_mix,shader_mask_mix>> |
+>|Shader <|<<id-property-shader_mask_mix_inv,shader_mask_mix_inv>> |
+>|Shader <|<<id-property-shader_mask_mul,shader_mask_mul>> |
+>|Shader <|<<id-property-shader_mask_mul_inv,shader_mask_mul_inv>> |
+>|Shader <|<<id-property-shader_mix,shader_mix>> |
+>|Shader <|<<id-property-shader_mul,shader_mul>> |
+>|float <|<<id-property-speed_scale,speed_scale>> |[default: 1.0]
+|===
+
+
+== Methods
+
+[cols="2",frame=none,grid=none]
+|===
+>|void <|advance(delta: float)
+>|void <|clear()
+>|moc3FileFormatVersion <|csm_get_latest_moc_version()
+>|moc3FileFormatVersion <|csm_get_moc_version()
+>|Dictionary <|csm_get_version()
+>|Dictionary <|get_canvas_info()
+>|Array <|get_cubism_motion_queue_entries()
+>|Array <|get_expressions()
+>|Array <|get_hit_areas()
+>|Dictionary <|get_meshes()
+>|Dictionary <|get_motions()
+>|Array <|get_parameters()
+>|Array <|get_part_opacities()
+>|void <|start_expression(expression_id: String)
+>|GDCubismMotionQueueEntryHandle <|start_motion(group: String, no: int, priority: Priority)
+>|GDCubismMotionQueueEntryHandle <|start_motion_loop(group: String, no: int, priority: Priority, loop: bool, loop_fade_in: bool)
+>|void <|stop_expression()
+>|void <|stop_motion()
+|===
+
+
+== Signals
+
+motion_event(value: String)::
+Se llama en el momento del tiempo de evento incrustado en _Motion_.
+
+.Ejemplo
+[source,gdscript]
+----
+func _on_motion_event(value: String):
+    print(value)
+
+func _ready():
+    $GDCubismUserModel.motion_event.connect(_on_motion_event)
+----
+
+motion_finished()::
+Se llama en el momento en que _Motion_ ha terminado de reproducirse.
+
+.Ejemplo
+[source,gdscript]
+----
+func _on_motion_finished(value: String):
+    print(value)
+
+func _ready():
+    $GDCubismUserModel.motion_event.connect(_on_motion_event)
+----
+
+
+
+== Enumerations
+
+[[id-enum-moc3_file_format_version]]
+enum moc3FileFormatVersion::
+* CSM_MOC_VERSION_UNKNOWN = 0 +
+Desconocido o no se pudo cargar
+* CSM_MOC_VERSION_30 = 1 +
+Versión de archivo moc3 desde 3.0.00 hasta 3.2.07
+* CSM_MOC_VERSION_33 = 2 +
+Versión de archivo moc3 desde 3.3.00 hasta 3.3.03
+* CSM_MOC_VERSION_40 = 3 +
+Versión de archivo moc3 desde 4.0.00 hasta 4.1.05
+* CSM_MOC_VERSION_42 = 4 +
+Versión de archivo moc3 desde 4.2.00 hasta 4.2.02
+* CSM_MOC_VERSION_50 = 5 +
+Versión de archivo moc3 5.0.00 y superior
+
+[[id-enum-priority]]
+enum Priority::
+* PRIORITY_NONE = 0
+* PRIORITY_IDLE = 1
+* PRIORITY_NORMAL = 2
+* PRIORITY_FORCE = 3 +
+Cambia forzosamente.
+
+[[id-enum-parameter_mode]]
+enum ParameterMode::
+* FULL_PARAMETER = 0 +
+Especifica esto al reproducir la _Motion_ indicada por la función <<id-method-start_motion,_start_motion_>>. +
+Cuando se especifica esto, no se pueden realizar operaciones mediante xref:./gd_cubism_parameter.adoc[].
+* NONE_PARAMETER = 1 +
+Especifica esto al usar xref:./gd_cubism_parameter.adoc[] obtenido por la función <<id-method-start_motion,_get_parameters_>> para operar el modelo Live2D. +
+Cuando se especifica esto, no se puede realizar la reproducción de animaciones mediante la función <<id-method-start_motion,_start_motion_>>.
+
+
+[[id-enum-motion_process_callback]]
+enum MotionProcessCallback::
+* PHYSICS = 0 +
+El proceso de actualización de la animación se realiza dentro de la función __physics_process_. Úsalo cuando quieras interactuar con la simulación física.
+* IDLE = 1 +
+El proceso de actualización de la animación se realiza dentro de la función __process_.
+* MANUAL = 2 +
+No se realiza ningún proceso de actualización de la animación. Para procesar la animación, usa la función <<id-method-advance,_advance_>>.
+
+
+== Property Descriptions
+
+[[id-property-adjust_position]]
+Vector2 adjust_position [default: Vector2(0, 0)]::
+Cambia la posición de renderizado del modelo Live2D. +
+GDCubism realiza el renderizado del modelo Live2D dentro de su propio SubViewport. +
+Ajustando este parámetro, puedes acercar una parte del modelo Live2D o usarlo cuando el resultado renderizado de auto_scale no se dibuja correctamente.
+
+
+[[id-property-adjust_scale]]
+float adjust_scale [default: 1.0]::
+Cambia el tamaño de renderizado del modelo Live2D. +
+GDCubism realiza el renderizado del modelo Live2D dentro de su propio SubViewport. +
+Ajustando este parámetro, puedes cambiar libremente el tamaño de renderizado del modelo Live2D.
+
+
+[[id-property-assets]]
+String assets [default: ""]::
+Especificando un archivo con la extensión *.model3.json, puedes cargar el modelo Live2D. Tan pronto como especifiques un archivo, se cargará inmediatamente. +
+Si deseas cambiar el modelo Live2D, puedes hacerlo simplemente especificando un nuevo archivo.
+
+
+[[id-property-auto_scale]]
+bool auto_scale [default: true]::
+_GDCubismUserModel_ intenta renderizar el modelo Live2D para que encaje dentro del tamaño de _SubViewport_ especificado para sí mismo. Por lo tanto, puede haber resultados que el creador del modelo Live2D no pretendía. +
++
+Desmarcando esto, puedes mostrar sin escalar.
+
+
+[[id-property-load_expressions]]
+bool load_expressions [default: true]::
+Si se establece en _false_, no cargará _Expressions_ al cargar el modelo Live2D.
+
+
+[[id-property-load_motions]]
+bool load_motions [default: true]::
+Si se establece en _false_, no cargará _Motions_ al cargar el modelo Live2D.
+
+
+[[id-property-mask_viewport_size]]
+Vector2i mask_viewport_size [default: Vector2i(0, 0)]::
+Especifica la resolución de la imagen de máscara requerida para el modelo Live2D.
++
+Si x o y se establece en 0, se usará el mismo tamaño que el Viewport establecido en GDCubismUserModel.
++
+Reducir la resolución puede ayudar a conservar memoria de la GPU. +
+Sin embargo, si el tamaño se reduce a menos de aproximadamente 512x512, puede haber problemas con la calidad de renderizado dependiendo de dónde se aplique la máscara.
++
+Asegúrate de que la relación de aspecto de esta imagen coincida con la relación de aspecto del Viewport en GDCubismUserModel. Por ejemplo, si es _1024x512_, entonces valores como _512x256_ o _128x64_ son apropiados.
++
+Dado que GDCubism asume la misma relación de aspecto que el Viewport para el renderizado, usar una relación incorrecta puede resultar en resultados no deseados.
+
+
+[[id-property-parameter_mode]]
+ParameterMode parameter_mode [default: 0]::
+Especifica el método de control para el modelo Live2D actualmente cargado.
+
+
+[[id-property-physics_evaluate]]
+bool physics_evaluate [default: true]::
+Establecer este parámetro en `false` deshabilita los cálculos físicos.
+
+
+[[id-property-playback_process_mode]]
+MotionProcessCallback playback_process_mode [default: 1]::
+Especifica el método de reproducción para el modelo Live2D actualmente cargado.
+
+
+[[id-property-pose_update]]
+bool pose_update [default: true]::
+Establecer este parámetro en `false` deshabilita los cálculos de transparencia entre las partes de dibujo especificadas en el grupo de pose. +
+Si deseas manejar manualmente todos los cálculos de transparencia, establece este parámetro en `false`.
+
+
+[[id-property-shader_add]]
+Shader shader_add::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_norm_add.gdshader[]
+----
+
+
+[[id-property-shader_mask]]
+Shader shader_mask::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask.gdshader[]
+----
+
+
+[[id-property-shader_mask_add]]
+Shader shader_mask_add::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask_add.gdshader[]
+----
+
+
+[[id-property-shader_mask_add_inv]]
+Shader shader_mask_add_inv::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask_add_inv.gdshader[]
+----
+
+
+[[id-property-shader_mask_mix]]
+Shader shader_mask_mix::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask_mix.gdshader[]
+----
+
+
+[[id-property-shader_mask_mix_inv]]
+Shader shader_mask_mix_inv::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask_mix_inv.gdshader[]
+----
+
+
+[[id-property-shader_mask_mul]]
+Shader shader_mask_mul::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask_mul.gdshader[]
+----
+
+
+[[id-property-shader_mask_mul_inv]]
+Shader shader_mask_mul_inv::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_mask_mul_inv.gdshader[]
+----
+
+
+[[id-property-shader_mix]]
+Shader shader_mix::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_norm_mix.gdshader[]
+----
+
+
+[[id-property-shader_mul]]
+Shader shader_mul::
+Especifica el _shader_ utilizado para renderizar el modelo Live2D. +
+Por defecto, se utiliza el siguiente _shader_.
+
+[source,,numlines]
+----
+include::example$2d_cubism_norm_mul.gdshader[]
+----
+
+
+[[id-property-speed_scale]]
+float speed_scale [default: 1.0]::
+Especifica la velocidad de reproducción del modelo Live2D actualmente cargado.
+
+
+== Method Descriptions
+
+[[id-method-advance]]
+void advance(delta: float)::
+Avanza la animación en el tiempo _delta_ especificado (en segundos). +
++
+Especifica un valor de 0.0 o más para delta.
+
+
+[[id-method-clear]]
+void clear()::
+Esta función fue eliminada para mejorar la consistencia operativa. +
+Para operaciones similares, establece la propiedad _assets_ en "".
+
+
+[[id-method-csm_get_latest_moc_version]]
+<<id-enum-moc3_file_format_version,moc3FileFormatVersion>> csm_get_latest_moc_version()::
+Devuelve la versión de archivo más reciente que GDCubismUserModel puede cargar.
+
+
+[[id-method-csm_get_moc_version]]
+<<id-enum-moc3_file_format_version,moc3FileFormatVersion>> csm_get_moc_version()::
+Devuelve la versión del archivo moc3 cargado.
+
+
+[[id-method-csm_get_version]]
+Dictionary csm_get_version()::
+Devuelve el número de versión del Cubism Native SDK Core utilizado por GDCubism en formato _Dictionary_. +
++
+version: int:::
+El valor devuelto por la función _csmVersion_ se almacena tal cual.
+major: int:::
+Solo la versión principal se extrae de version y se almacena.
+minor: int:::
+Solo la versión secundaria se extrae de version y se almacena.
+patch: int:::
+Solo el número de parche se extrae de version y se almacena.
+
+
+[[id-method-get_canvas_info]]
+Dictionary get_canvas_info()::
+Devuelve la siguiente información en formato _Dictionary_. +
++
+size_in_pixels: Vector2:::
+Devuelve el ancho y alto del lienzo del modelo Live2D cargado en píxeles.
+origin_in_pixels: Vector2:::
+Devuelve la posición central del modelo Live2D cargado en píxeles.
+pixels_per_unit: float:::
+Devuelve el _pixelsPerUnit_ del modelo Live2D cargado.
+
+
+[[id-method-get_cubism_motion_queue_entries]]
+Array get_cubism_motion_queue_entries()::
+Devuelve información sobre la _Motion_ que se está reproduciendo actualmente.
+
+
+[[id-method-get_expressions]]
+Array get_expressions()::
+Devuelve una lista de _Expressions_ del modelo Live2D actualmente cargado. +
++
+La información obtenida se puede usar como argumento para la función _start_expression_.
+
+
+[[id-method-get_hit_areas]]
+Array get_hit_areas()::
+Obtiene información sobre el _HitArea_ establecido en el modelo Live2D. +
+Los elementos del array son _Dictionary_, y tienen elementos _id_ y _name_. +
++
+_id_ apunta al elemento de la malla, por lo que se puede usar como clave para _get_meshes_. +
++
++
+Puedes implementar interacción con el modelo Live2D usando esta función y la información obtenida de _get_meshes_. +
+Si no necesitas procesamiento avanzado, puedes usarlo fácilmente usando la clase _GDCubismEffectHitArea_.
+
+
+[[id-method-get_meshes]]
+Dictionary get_meshes()::
+Obtiene información sobre _ArrayMesh_ de _MeshInstance_ utilizada en el estado actual de Motion. +
++
+Las claves que posee este _Dictionary_ son idénticas a los nombres de _MeshInstance_ generados por _GDCubismUserModel_. La información que se puede obtener es el _ArrayMesh_ interno. +
++
+Se puede usar de la siguiente manera.
+
+[source, gdscript]
+----
+var dict_mesh: Dictionary = model.get_meshes()
+var ary_mesh: ArrayMesh = dict_mesh[art_mesh_name]
+var ary_surface: Array = ary_mesh.surface_get_arrays(0)
+
+var mesh_vertex: PackedVector2Array = ary_surface[ArrayMesh.ARRAY_VERTEX]
+var mesh_tex_uv: PackedVector2Array = ary_surface[ArrayMesh.ARRAY_TEX_UV]
+var mesh_index: PackedInt32Array = ary_surface[ArrayMesh.ARRAY_INDEX]
+----
+
+CAUTION: get_meshes es una función experimental añadida en v0.1. Ten en cuenta que la especificación puede cambiar o eliminarse en el futuro.
+
+
+[[id-method-get_motions]]
+Dictionary get_motions()::
+Devuelve una lista de _Motions_ del modelo Live2D actualmente cargado. +
+El _Dictionary_ devuelto es _group_ y el número de motions que contiene. +
++
+Para enumerar todas las motions, escribe de la siguiente manera.
+
+[source, gdscript]
+----
+var dict_motion = $GDCubismUserModel.get_motions()
+for group in dict_motion.keys():
+    for no in dict_motion[group]:
+        print("group: %s, no: %d" % [group, no])
+----
+
+
+[[id-method-get_parameters]]
+Array get_parameters()::
+Obtiene una clase para operar el modelo Live2D actualmente cargado.
+
+
+[[id-method-get_part_opacities]]
+Array get_part_opacities()::
+Obtiene una clase para operar la transparencia de las partes del modelo Live2D actualmente cargado.
+
+
+[[id-method-start_expression]]
+void start_expression(expression_id: String)::
+Reproduce el _expression_id_ especificado.
+
+
+[[id-method-start_motion]]
+xref:./gd_cubism_motion_queue_entry_handle.adoc[] start_motion(group: String, no: int, priority: <<id-enum-priority,Priority>>)::
+Reproduce la _Motion_ especificada por _group_ y _no_.
+
+
+[[id-method-start_motion_loop]]
+xref:./gd_cubism_motion_queue_entry_handle.adoc[] start_motion_loop(group: String, no: int, priority: <<id-enum-priority,Priority>>)::
+Reproduce la _Motion_ especificada por _group_ y _no_. +
++
+Especifica esto cuando quieras reproducir en bucle. Si el argumento _loop_ es _false_, se comporta igual que la función _start_motion_.
+
+
+[[id-method-stop_expression]]
+void stop_expression()::
+Detiene la _Expression_ que se está reproduciendo actualmente.
+
+
+[[id-method-stop_motion]]
+void stop_motion()::
+Detiene la _Motion_ que se está reproduciendo actualmente.

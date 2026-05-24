@@ -1,0 +1,248 @@
+= Usage
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ./res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+xref:ja/usage.adoc[Japonés] / xref:en/usage.adoc[English] / xref:es/usage.adoc[Español]
+
+
+== Cómo usar
+
+Si deseas comenzar de inmediato, abre _project.godot_ ubicado en la carpeta _demo_ desde el editor de Godot Engine. (Las instrucciones sobre cómo ejecutar la demostración se proporcionan más adelante en este documento)
+
+Si deseas usarlo en tu propio proyecto, copia el contenido de la carpeta _addons_ ubicada en la carpeta _demo_ al proyecto donde quieras usarlo.
+
+Si ya existe una carpeta _addons_, copia el contenido de la carpeta _gd_cubism_.
+
+NOTE: La carpeta _addons_ es una carpeta designada para almacenar programas que extienden el motor Godot, como GDCubism.
+
+
+=== Fácil de usar (desde el Editor)
+
+Describe cómo importar un modelo Live2D y visualizarlo en _Sprite2D_.
+
+[CAUTION]  
+====  
+Esta explicación está basada en la versión 0.8. A partir de la versión 0.9, se implementó el renderizado directo y ya no se requieren texturas para reflejar los resultados del renderizado. Se está preparando una explicación actualizada.  
+====
+
+==== Diseño
+
+Organiza los nodos de la misma manera consultando la figura a continuación.
+
+image::usage_simple_01.png[fig01,256]
+
+
+==== Cargando modelos Live2D
+
+Selecciona _GDCubismUserModel_ de la lista de nodos y presiona el botón de selección de archivo a la derecha del elemento Assets.
+ +
+ +
+Aparecerá un diálogo de selección de archivos, desde el cual puedes seleccionar cualquier archivo *.model3.json.
+
+image::usage_simple_02.png[fig02,256]
+
+
+==== ¿Estás viendo un modelo Live2D?
+
+Una vez que el modelo Live2D se carga correctamente, la pantalla de vista previa muestra el modelo Live2D.
+
+image::usage_simple_03.png[fig03,256]
+
+
+==== Asignar a la textura de Sprite2D
+
+Luego selecciona el nodo _Sprite2D_ para abrir el elemento Texture. +
+Cuando selecciones ''New ViewportTexture'' de la lista, aparecerá un diálogo para seleccionar _Viewport_, selecciona _GDCubismUserModel_.
+
+image::usage_simple_04.png[fig04,256]
+
+El modelo Live2D se muestra en el campo Texture.
+
+image::usage_simple_05.png[fig05,256]
+
+El modelo Live2D también se muestra en la posición de _Sprite2D_.
+
+image::usage_simple_06.png[fig06,512]
+
+
+== Solución de problemas
+
+==== El modelo no se carga correctamente
+
+Si el nombre del archivo del modelo está en japonés, no se cargará correctamente. Sobrescribir el nombre del archivo generado por el Cubism Editor y la referencia en *.model3.json hará que funcione correctamente.
+
+==== El parpadeo no ocurre normalmente
+
+Es posible que los Ids para EyeBlink en *.model3.json no estén especificados. Configúralos y vuelve a exportar, o agrega ParamEyeLOpen y ParamEyeROpen a Ids.
+
+==== La imagen aparece borrosa
+
+Mipmap se ha habilitado para los shaders desde la versión 0.5.
+
+Si deseas habilitarlo, vuelve a importar la textura utilizada en Live2D con Mipmap habilitado.
+
+image::usage_mipmap_01.png[mipmap01,256]
+
+El efecto de Mipmap es bastante significativo; sin embargo, dependiendo de la imagen, puede aparecer borrosa.
+
+Sin aplicación de Mipmap
+
+image::usage_mipmap_02a.jpg[mipmap02a,256]
+
+Con aplicación de Mipmap
+
+image::usage_mipmap_02b.jpg[mipmap02b,256]
+
+==== Los modelos Live2D no se muestran al exportar proyectos
+
+Los modelos Live2D utilizan varios archivos, que son procesados internamente por Live2D. En consecuencia, el motor Godot tiene dificultades para empaquetar eficazmente los recursos relacionados con Live2D.
+
+Para garantizar un empaquetado adecuado, navega a la sección Recursos en la pantalla de Exportación. Aquí, especifica directamente los recursos que estás utilizando y la carpeta que los contiene.
+
+Para obtener instrucciones detalladas, consulta la sección de opciones de Recursos en la documentación oficial sobre Exportación de proyectos:
+
+https://docs.godotengine.org/ja/4.x/tutorials/export/exporting_projects.html#resource-options
+
+
+== Acerca de la Demo
+
+La carpeta _demo_ contiene los siguientes elementos como muestras. Para ejecutar cualquiera de las muestras, necesitarás el modelo Live2D de Nijiiro Mao.
+
+Este modelo Live2D se puede descargar desde link:https://www.live2d.com[].
+
+Organiza el contenido del archivo descargado de la siguiente manera:
+
+* (_demo/examples/res/live2d_)
+** mao_pro_jp
+*** runtime
+**** expressions
+***** ...
+**** map_pro_t02.4096
+***** ...
+**** motions
+***** ...
+**** mao_pro.cdi3.json
+**** mao_pro.moc3
+**** mao_pro.model3.json
+**** mao_pro.physics3.json
+**** mao_pro.pose3.json
+*** mao_pro_t05.can3
+*** mao_pro_t05.cmo3
+
+Si deseas probar con tu propio modelo, coloca los archivos de salida siguiendo la estructura anterior en _demo/examples/res/live2d_.
+
+
+=== Documentación relacionada
+
+* xref:es/custom/motion.adoc[]
+
+
+=== Descripción de la Demo
+
+[cols="1,1",frame=none,grid=none]
+|===
+^|Nombre ^|Desc
+
+|demo_effect_custom_01.tscn
+|Esta es una muestra que utiliza _GDCubismEffectCustom_.
+
+|demo_effect_custom_02.tscn
+|Esta es una muestra que utiliza _GDCubismEffectCustom_.
+
+|demo_effect_custom_03.tscn
+|Esta es una muestra que utiliza _GDCubismEffectCustom_. Realiza un lip sync simple, moviendo la boca según el volumen.
+
+|demo_effect_hit_area.tscn
+|Esta es una muestra que utiliza _GDCubismEffectHitArea_. También sirve como ejemplo de uso del _HitArea_ configurado en el modelo Live2D.
+
+|demo_effect_target_pooint.tscn
+|Esta es una muestra que utiliza _GDCubismEffectTargetPoint_. El modelo Live2D mirará en la dirección de la posición del mouse.
+
+|demo_fade.tscn
+|Una muestra que utiliza _SubViewport_ para replicar el método de renderizado utilizado antes de la versión 0.9.
+
+|demo_simple.tscn
+|Esta es una muestra que muestra el modelo Live2D solo con una combinación de Nodos.
+
+|demo_transparent.tscn
+|Esta es una muestra que muestra solo el personaje haciendo transparente el entorno del modelo Live2D.
+
+|viewer.tscn
+|Esta es una muestra que también sirve como visor simple. Puedes reproducir _Expression_ y _Motion_.
+
+|===
+
+NOTE: El programa está disponible tanto en versiones GDScript como C#. Puedes verificar el funcionamiento reemplazando el script asignado al archivo tscn.
+
+
+== Referencia de la API / Estado de soporte de C#
+
+GDCubism proporciona una variedad de clases. Consulta el documento vinculado a continuación para saber cómo usarlo.
+
+[cols="^1,^1,^1",frame=none,grid=none]
+|===
+|GDScript Class |C# Class |Características
+
+|link:./api/gd_cubism_effect{adocsuffix}[GDCubismEffect]
+|GDCubismEffectCS
+|-
+
+|link:./api/gd_cubism_effect_breath{adocsuffix}[GDCubismEffectBreath]
+|GDCubismEffectBreathCS
+|△
+
+|link:./api/gd_cubism_effect_custom{adocsuffix}[GDCubismEffectCustom]
+|GDCubismEffectCustomCS
+|○
+
+|link:./api/gd_cubism_effect_eye_blink{adocsuffix}[GDCubismEffectEyeBlink]
+|GDCubismEffectEyeBlinkCS
+|△
+
+|link:./api/gd_cubism_effect_hit_area{adocsuffix}[GDCubismEffectHitArea]
+|GDCubismEffectHitAreaCS
+|○
+
+|link:./api/gd_cubism_effect_target_point{adocsuffix}[GDCubismEffectTargetPoint]
+|GDCubismEffectTargetPointCS
+|○
+
+|link:./api/gd_cubism_motion_entry{adocsuffix}[GDCubismMotionEntry]
+|GDCubismMotionEntryCS
+|x
+
+|link:./api/gd_cubism_motion_queue_entry_handle{adocsuffix}[GDCubismMotionQueueEntryHandle]
+|GDCubismMotionQueueEntryHandleCS
+|x
+
+|link:./api/gd_cubism_value_abs{adocsuffix}[GDCubismValueAbs]
+|GDCubismValueAbsCS
+|-
+
+|link:./api/gd_cubism_parameter{adocsuffix}[GDCubismParameter]
+|GDCubismParameterCS
+|○
+
+|link:./api/gd_cubism_part_opacity{adocsuffix}[GDCubismPartOpacity]
+|GDCubismPartOpacityCS
+|○
+
+|link:./api/gd_cubism_user_model{adocsuffix}[GDCubismUserModel]
+|GDCubismUserModelCS
+|○
+|===

@@ -1,0 +1,400 @@
+= Compilación
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ./res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+xref:ja/build.adoc[Japonés] / xref:en/build.adoc[English] / xref:es/build.adoc[Español]
+
+
+== Cómo compilar
+=== Obtener el código fuente
+
+Primero, clona gd_cubism usando git.
+
+Puedes usar la versión más reciente tal cual. Si deseas probar extensiones de funcionalidad o correcciones de errores, cambia de rama según corresponda.
+
+[source, bash]
+----
+git clone https://github.com/MizunagiKB/gd_cubism.git
+cd gd_cubism
+git submodule update --init
+----
+
+
+==== Preparación de CubismSdkForNative
+
+A continuación, obtén el SDK necesario para la compilación desde el sitio web oficial de Live2D.
+
+* Sitio web oficial de Live2D - https://www.live2d.com/
+
+Cubism SDK for Native incluye el Cubism Native Framework además del Cubism SDK.
+
+Extrae los archivos descargados de manera que sigan la estructura de carpetas a continuación. (Si colocas los archivos descargados en la carpeta thirdparty y los extraes, deberían adoptar esta forma)
+
+[source, console]
+----
+./thirdparty
+└── CubismSdkForNative-5-r.1
+     ├── CHANGELOG.md
+     ├── Core
+     │   ├── CHANGELOG.md
+     │   ├── LICENSE.md
+     │   ├── README.ja.md
+     │   ├── README.md
+     │   ├── RedistributableFiles.txt
+     │   ├── dll
+     │   ├── include
+     │   └── lib
+     ├── Framework
+     │   ├── CHANGELOG.md
+     │   ├── CMakeLists.txt
+     │   ├── LICENSE.md
+     │   ├── README.ja.md
+     │   ├── README.md
+     │   ├── TRANSLATION.md
+     │   └── src
+     ├── LICENSE.md
+     ├── NOTICE.ja.md
+     ├── NOTICE.md
+     ├── README.ja.md
+     ├── README.md
+     ├── Samples
+     │   ├── Cocos2d-x
+     │   ├── D3D11
+     │   ├── D3D9
+     │   ├── Metal
+     │   ├── OpenGL
+     │   ├── Resources
+     │   └── Vulkan
+     ├── cubism-info.yml
+     ├── logor.png
+     └── logos.png
+----
+
+
+==== Resolución de errores
+
+Dependiendo de la versión y el entorno de Godot Engine, se ha observado un error que causa fugas de memoria en el estado de no visualización de la Ventana.
+
+Este error ocurre al usar el renderizador Vulkan en _Forward+_ y _mobile_, y aunque algunos problemas han sido abordados, no se ha resuelto en el entorno macOS.
+
+Para solucionar este problema, hemos hecho posible especificar *COUNTERMEASURES_90017_90030* durante la ejecución de scons.
+
+COUNTERMEASURES_90017_90030=1 (por defecto):: No llama al proceso de renderizado del modelo Live2D cuando la Ventana está en estado de no visualización.
+COUNTERMEASURES_90017_90030=0:: Llama al proceso de renderizado del modelo Live2D independientemente del estado de visualización de la Ventana.
+
+Para más detalles sobre el error, consulta los siguientes issues:
+
+* https://github.com/godotengine/godot/issues/89651
+* https://github.com/godotengine/godot/issues/90017
+* https://github.com/godotengine/godot/issues/90030
+
+
+==== Diferencias de comportamiento con CubismEditor
+
+GDCubism, que internamente usa CubismNativeFramework, está diseñado para poder reproducir modelos Live2D creados con Cubism Editor. Sin embargo, pueden surgir diferencias en la prioridad de dibujo y el movimiento.
+
+La documentación de Cubism SDK for Native contiene diferencias de funcionamiento con Cubism Editor y consejos para la creación de datos.
+
+El contenido del documento está principalmente destinado a Unity y Cubism SDK for Native, y hay lugares donde no se puede usar tal cual, pero consúltalo como referencia.
+
+.Cubism Editor 5
+* link:https://docs.live2d.com/en/cubism-sdk-manual/cubism-5-new-functions/[Soporte SDK para nuevas funciones en Cubism 5]
+* link:https://docs.live2d.com/en/cubism-sdk-manual/cubism-4-new-functions/[Soporte SDK para nuevas funciones en Cubism 4]
+* link:https://docs.live2d.com/en/cubism-sdk-manual/cubism-4-2-new-functions/[Soporte SDK para nuevas funciones en Cubism 4.2]
+* link:https://docs.live2d.com/en/cubism-sdk-manual/compatibility-with-cubism-5/[Compatibilidad SDK con funciones de Cubism 5]
+* link:https://docs.live2d.com/en/cubism-sdk-manual/compatibility-with-cubism-4-2/[Compatibilidad SDK con funciones de Cubism 4.2]
+* link:https://docs.live2d.com/en/cubism-sdk-manual/update-sdk-to-cubism5/[Migración de proyectos de versiones anteriores al SDK de Cubism 5]
+* link:https://docs.live2d.com/en/cubism-sdk-manual/update-sdk-to-cubism4/[Migración de proyectos de versiones anteriores al SDK de Cubism 4]
+
+.Cubism Editor 5 / Comparación de plataformas
+* link:https://docs.live2d.com/en/cubism-sdk-manual/sdk-type-for-motiopn/[Diferencias en la creación de movimiento según el flujo de trabajo]
+
+
+==== Personalización de CubismNativeFramework
+
+GDCubism usa CubismNativeFramework, que está incluido en CubismSdkForNative. Si deseas usar el Framework más reciente o personalizarlo según tus necesidades, puedes hacerlo siguiendo estos pasos:
+
+[source, bash]
+----
+pushd thirdparty
+git clone https://github.com/Live2D/CubismNativeFramework.git
+popd
+----
+
+CAUTION: Esta compilación tiene prioridad sobre el Framework en CubismSdkForNative, por favor elimínalo cuando ya no sea necesario.
+
+
+=== Compilar para Windows
+
+[NOTE]
+====
+Los siguientes elementos son necesarios para la compilación:
+
+* link:https://visualstudio.microsoft.com/ja/vs/community/[VisualStudio Community], versión 2019 o posterior.
+* link:https://www.python.org/downloads/windows/[Python 3.8+]
+* link:https://scons.org/pages/download.html[SCons 3.0+] sistema de compilación.
+====
+
+[CAUTION]
+====
+Se ha informado que el uso de SCons 4.8 produce fallos en la compilación.
+
+Este problema reside en Godot Engine y se espera que se resuelva en versiones futuras.
+
+* https://github.com/godotengine/godot/pull/94117
+
+Por ahora, usa SCons 4.7.
+
+[source]
+----
+# Puedes solucionar esto especificando la versión al instalar scons.
+# Si tienes instalada una versión superior a 4.8, puedes usar este método para revertir a 4.7.
+pip install scons==4.7
+----
+====
+
+
+.Instalación de Visual Studio - Advertencias
+****
+Al instalar Visual Studio, asegúrate de habilitar C{plus}{plus} en la lista de cargas de trabajo a instalar.
+
+Si ya has cometido el error de instalar Visual Studio sin soporte para C{plus}{plus}, ejecuta el instalador nuevamente; debería mostrarte un botón Modificar. Ejecutar el instalador desde Agregar o Quitar Programas solo te dará una opción de Reparar, que no te permitirá instalar las herramientas de C{plus}{plus}.
+
+link:https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_windows.html#development-in-visual-studio[Documentación de Godot Engine 4.1]
+****
+
+
+Cuando estés listo, ejecuta la compilación con el siguiente comando.
+
+[source, console]
+--
+scons platform=windows vsproj=yes arch=x86_64 target=template_debug
+scons platform=windows vsproj=yes arch=x86_64 target=template_release
+--
+
+Cuando la compilación haya finalizado, se generarán los siguientes archivos en _demo/addons/gd_cubism/bin_.
+
+* libgd_cubism.windows.debug.x86_64.dll
+* libgd_cubism.windows.release.x86_64.dll
+
+
+=== Compilar para macOS
+
+[NOTE]
+====
+Los siguientes elementos son necesarios para la compilación:
+
+* link:https://apps.apple.com/us/app/xcode/id497799835[Xcode]
+* link:https://www.python.org/downloads/windows/[Python 3.8+]
+* link:https://scons.org/pages/download.html[SCons 3.0+] sistema de compilación.
+====
+
+[CAUTION]
+====
+Se ha informado que el uso de SCons 4.8 produce fallos en la compilación.
+
+Este problema reside en Godot Engine y se espera que se resuelva en versiones futuras.
+
+* https://github.com/godotengine/godot/pull/94117
+
+Por ahora, usa SCons 4.7.
+
+[source]
+----
+# Puedes solucionar esto especificando la versión al instalar scons.
+# Si tienes instalada una versión superior a 4.8, puedes usar este método para revertir a 4.7.
+pip install scons==4.7
+----
+====
+
+
+Cuando estés listo, ejecuta la compilación con el siguiente comando.
+
+[source, bash]
+--
+# para x86_64(intel mac)
+scons platform=macos arch=x86_64 target=template_debug
+scons platform=macos arch=x86_64 target=template_release
+# para arm64(Apple Silicon mac)
+scons platform=macos arch=arm64 target=template_debug
+scons platform=macos arch=arm64 target=template_release
+--
+
+Cuando la compilación haya finalizado, se generarán los siguientes archivos en _demo/addons/gd_cubism/bin_.
+
+* libgd_cubism.macos.debug.framework
+* libgd_cubism.macos.release.framework
+
+
+==== Compilar como binario universal
+
+Si deseas compilar como un binario universal, necesitas crear archivos de enlace de la siguiente manera antes de ejecutar scons.
+
+
+[source, bash]
+----
+pushd thirdparty/CubismSdkForNative-5-r.1/Core/lib/macos
+mkdir universal
+lipo -create arm64/libLive2DCubismCore.a x86_64/libLive2DCubismCore.a -output universal/libLive2DCubismCore.a
+popd
+
+# para universal
+scons platform=macos arch=universal target=template_debug
+scons platform=macos arch=universal target=template_release
+----
+
+
+=== Compilar para Linux
+
+[NOTE]
+====
+Los siguientes elementos son necesarios para la compilación:
+
+* GCC 7+, Clang 6+.
+* link:https://www.python.org/downloads/windows/[Python 3.8+].
+* link:https://scons.org/pages/download.html[SCons 3.0+] sistema de compilación.
+
+Para Linux, pueden requerirse paquetes adicionales según cada distribución. Consulta la documentación de Godot Engine para saber qué requieren las distribuciones. (Verificado en Ubuntu 22.04 Desktop)
+
+* link:https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_linuxbsd.html[Compilación para Linux, *BSD]
+====
+
+
+Cuando estés listo, ejecuta la compilación con el siguiente comando.
+
+[source, bash]
+--
+scons platform=linux arch=x86_64 target=template_debug
+scons platform=linux arch=x86_64 target=template_release
+--
+
+Cuando la compilación haya finalizado, se generarán los siguientes archivos en _demo/addons/gd_cubism/bin_.
+
+* libgd_cubism.linux.debug.x86_64.so
+* libgd_cubism.linux.release.x86_64.so
+
+
+=== Compilar para otros
+
+Los siguientes dos solo han sido verificados como compilables, pero no se han probado en funcionamiento.
+
+Úsalos como referencia al intentar ejecutarlos en cada entorno.
+
+
+==== Compilar para iOS
+
+[NOTE]
+====
+Los siguientes elementos son necesarios para la compilación:
+
+* link:https://apps.apple.com/us/app/xcode/id497799835[Xcode]
+* link:https://www.python.org/downloads/windows/[Python 3.8+]
+* link:https://scons.org/pages/download.html[SCons 3.0+] sistema de compilación.
+====
+
+En los casos en que Xcode se use solo desde la línea de comandos, puede haber casos en que la compilación para iphoneos no se inicie.
+
+En tales casos, puedes hacer que la compilación prosiga re-especificando la ruta a Xcode de la siguiente manera:
+
+[source, bash]
+----
+sudo xcode-select --switch /Applications/Xcode.app 
+----
+
+Cuando estés listo, ejecuta la compilación con el siguiente comando.
+
+[source, bash]
+--
+# para arm64
+scons platform=ios arch=arm64 target=template_debug
+scons platform=ios arch=arm64 target=template_release
+# para universal
+scons platform=ios arch=universal target=template_debug
+scons platform=ios arch=universal target=template_release
+--
+
+Cuando la compilación haya finalizado, se generarán los siguientes archivos en _demo/addons/gd_cubism/bin_.
+
+* libgd_cubism.ios.debug.arm64.dylib
+* libgd_cubism.ios.release.arm64.dylib
+* libgd_cubism.ios.debug.universal.dylib
+* libgd_cubism.ios.release.universal.dylib
+
+
+==== Compilar para Android
+
+[NOTE]
+====
+Los siguientes elementos son necesarios para la compilación:
+
+* link:https://www.python.org/downloads/windows/[Python 3.8+].
+* link:https://scons.org/pages/download.html[SCons 3.0+] sistema de compilación.
+* link:https://developer.android.com/studio[Android Studio]
+* link:https://www.azul.com/downloads/?package=jdk#zulu[Azul Zulu: 21.28.85]
+====
+
+Suponiendo que has instalado Android Studio en un entorno Windows 10, sigue estos pasos:
+
+Inicia Android Studio y abre el SDK Manager. Puedes acceder al SDK Manager desde el menú More Actions en la pantalla de Bienvenida a Android Studio que aparece al iniciar Android Studio.
+
+Una vez que el SDK Manager esté abierto, marca los siguientes elementos y descárgalos.
+
+* SDK Platforms
+** Android API 34
+** Android 10("Q")
+* SDK Tools
+** Android SDK Build-Tools 34
+** NDK (Side by side)
+** Android SDK Command-line Tools (latest)
+** CMake
+** Android Emulator
+** Android SDK Platform-Tools
+** Android SDK Tools (Obsolete)
+
+Cuando estés listo, ejecuta la compilación con el siguiente comando.
+
+[source, bash]
+--
+scons platform=android target=template_debug arch=armv7
+scons platform=android target=template_release arch=armv7
+scons platform=android target=template_debug arch=arm64v8
+scons platform=android target=template_release arch=arm64v8
+--
+
+Si la compilación no se inicia, prueba a establecer las siguientes variables de entorno:
+
+* ANDROID_SDK_ROOT ... La ubicación donde están instalados los elementos seleccionados por el SDK Manager
+* ANDROID_HOME ... La ubicación donde están instalados los elementos seleccionados por el SDK Manager
+* ANDROID_NDK_HOME ... La ubicación donde se encuentra el NDK instalado por el SDK Manager
+* ANDROID_NDK_ROOT ... La ubicación donde se encuentra el NDK instalado por el SDK Manager
+
+.ejemplo
+[source, bash]
+--
+set ANDROID_SDK_ROOT=D:\Android\sdk
+set ANDROID_HOME=D:\Android\sdk
+set ANDROID_NDK_HOME=%ANDROID_SDK_ROOT%\ndk\26.0.10792818
+set ANDROID_NDK_ROOT=%ANDROID_SDK_ROOT%\ndk\26.0.10792818
+--
+
+Cuando la compilación haya finalizado, se generarán los siguientes archivos en _demo/addons/gd_cubism/bin_.
+
+* libgd_cubism.android.debug.arm32.so
+* libgd_cubism.android.release.arm32.so
+* libgd_cubism.android.debug.arm64.so
+* libgd_cubism.android.release.arm64.so

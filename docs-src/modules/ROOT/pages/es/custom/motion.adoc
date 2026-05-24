@@ -1,0 +1,178 @@
+= Animación Personalizada
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2024 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ./docs/res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+xref:ja/custom/animation.adoc[Japonés] / xref:en/custom/animation.adoc[English] / xref:es/custom/motion.adoc[Español]
+
+
+[NOTE]
+====
+Este documento está actualmente en desarrollo.
+Esta página está traducida automáticamente.
+====
+
+
+== Introducción
+
+GDCubism está desarrollado con el objetivo de simplificar la reproducción de modelos Live2D en Godot Engine.
+
+Dado que el renderizado se realiza a través de SubViewport, mostrar el modelo requiere algo de esfuerzo, pero una vez mostrado, se puede verificar fácilmente desde el Editor de Godot.
+
+Si bien es fácil de mostrar, no está del todo claro cómo lograr un control más fino. Por ejemplo, si deseas reproducir una motion mientras cambias solo algunos parámetros.
+
+Tales operaciones se pueden lograr usando GDScript; sin embargo, actualmente solo se pueden descubrir leyendo el código fuente.
+
+Por lo tanto, he recopilado este documento como referencia.
+
+
+=== Flujo del Proceso
+
+Al controlar un modelo Live2D con GDScript, controlarás el array obtenido por la función get_parameter de GDCubismUserModel, pero no se reflejará en el modelo Live2D si lo estableces sin considerar esto.
+
+La razón es que incluso si intentas sobrescribir los parámetros, la motion establecida los sobrescribirá.
+
+Para configurarlo correctamente, es mejor saber cómo GDCubism realiza el renderizado, así que explicaré cómo GDCubism renderiza el modelo Live2D. (Si no estás interesado en los antecedentes técnicos, omite esta sección)
+
+
+==== Explicación del Proceso
+
+GDCubismUserModel realiza los siguientes procesos cada frame. El orden general es "Cargar Configuración", "Actualizar Información de Live2D" y "Renderizado".
+
+. Cargar Configuración
+.. Actualizar parámetros de motion.
+.. Actualizar parámetros de expresión.
+.. Reflejar parámetros de GDCubismUserModel.
+.. Reflejar opacidades de GDCubismUserModel.
+. Actualizar Información de Live2D
+.. Actualizar parámetros físicos.
+.. Actualizar pose.
+.. Actualizar información de renderizado.
+. Crear Información de Renderizado
+.. Calcular la cantidad de SubViewport y Mesh necesarios para el renderizado.
+.. Generar SubViewport y ArrayMesh y asignarlos al árbol de nodos.
+
+> En el código real del programa (a partir de la versión 0.6), se llama de la siguiente manera con _process como disparador.
+
+
+NOTE: _process es cuando playback_process_mode está configurado en IDLE. Para PHYSICS, es _physics_process, y para MANUAL, es _advance.
+
+
+* _GDCubismUserModel_._process
+** _GDCubismUserModel_._update
+
+*** _InternalCubismModel_.pro_update
+**** _InternalCubismModel_.effect_batch
+***** Llamada de la señal *cubism_prologue*
+**** Restaurar información de parámetros del modelo Live2D
+**** _motionManager.UpdateMotion
+**** Guardar información de parámetros del modelo Live2D
+**** _expressionManager.UpdateMotion
+**** _InternalCubismModel_.GetModelOpacity
+
+*** _InternalCubismModel_.efx_update
+**** Si hay un cambio en el nodo GDCubismEffect*, llama a la señal efx_term, efx_initfootnote:id[Ya que se llama aquí, la señal se llama a mitad de camino, por lo que la posición de la llamada puede cambiarse en versiones futuras.]
+**** _InternalCubismModel_.effect_batch
+***** Llamada de la señal *cubism_process*
+
+*** Configuración y obtención de información de parámetros
+*** Configuración y obtención de opacidad
+
+*** _InternalCubismModel_.epi_update
+**** Actualizar parámetros físicos del modelo Live2D
+**** Actualizar pose del modelo Live2D
+**** Actualizar estado interno del modelo Live2D
+**** _InternalCubismModel_.effect_batch
+***** Llamada de la señal *cubism_epilogue*
+
+*** _InternalCubismModel_.update_node
+**** _InternalCubismModel_.GetRenderer
+**** Reflejar tamaño de renderizado
+**** Reflejar posición de renderizado
+**** Asegurar recursos necesarios para el renderizado
+**** Establecer información necesaria para el renderizado en Godot Engine
+
+
+==== Cómo Agregar Procesamiento Personalizado
+
+A partir de aquí, describiremos cómo proceder con el procesamiento real.
+
+
+===== Cómo Procesar en la Función _process
+
+La serie de procesos mencionados anteriormente se realizan cuando Godot Engine llama al _process de GDCubismUserModel.
+
+Por lo tanto, si deseas cambiar un poco los parámetros del modelo Live2D, puedes hacerlo después. El punto a tener en cuenta es cuándo Godot Engine llama al _process dentro de GDCubismUserModel.
+
+Esto depende de dónde esté GDCubismUserModel en el árbol de nodos y dónde esté configurado el script. Para asegurarte de que se refleje, establece playback_process_mode de GDCubismUserModel en MANUAL y llama a la función advance antes de operar los parámetros.
+
+Esto evita que la actualización de parámetros se sobrescriba antes de que se refleje.
+
+[source]
+[source,,numlines]
+----
+include::example$custom_animation_process.gd[]
+----
+
+
+===== Cómo Procesar con GDCubismEffectCustom
+
+Si agregas GDCubismEffectCustom como elemento hijo de GDCubismUserModel, podrás recibir las señales cubism_prologue, cubism_process y cubism_epilogue.
+
+
+Hay cinco tipos de señales que GDCubismEffectCustom puede recibir, pero las relacionadas con el modelo Live2D son las siguientes tres.
+
+cubism_prologue::
+Se llama antes de que se actualicen la motion y la expresión aplicadas al modelo Live2D. Incluso si cambias los parámetros al recibir esta señal, serán ignorados.
+ +
+Actualmente, puedes operar sobre los parámetros obtenidos por la función get_parameters de GDCubismUserModel, pero el comportamiento puede cambiar en versiones futuras.
+
+cubism_process::
+Se llama después de que se actualicen la motion y la expresión aplicadas al modelo Live2D. Si actualizas los parámetros al recibir esta señal, puedes sobrescribir procesamiento personalizado mientras se reproduce la motion.
+
+Por ejemplo, reemplazar la forma de la mano, quitar el sombrero o cerrar los ojos.
+
+
+cubism_epilogue::
+Es casi lo mismo que cubism_process, pero el contenido de get_parameters de GDCubismUserModel refleja la motion y la expresión.
+
+[source]
+[source,,numlines]
+----
+include::example$custom_animation_signal.gd[]
+----
+
+
+== Acerca del Código de Ejemplo
+
+Los siguientes ejemplos se proporcionan usando GDCubismEffectCustom.
+
+
+[cols="1,1",frame=none,grid=none]
+|===
+^|Nombre ^|Desc
+
+|demo_effect_custom_01.tscn
+|Este es un ejemplo usando _GDCubismEffectCustom_.
+
+|demo_effect_custom_02.tscn
+|Este es un ejemplo usando _GDCubismEffectCustom_.
+
+|demo_effect_custom_03.tscn
+|Este es un ejemplo usando _GDCubismEffectCustom_. Realiza un lip sync simple, moviendo la boca según el volumen.
+
+|===

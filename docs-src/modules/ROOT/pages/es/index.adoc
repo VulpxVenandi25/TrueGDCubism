@@ -1,0 +1,101 @@
+= Cubism para Godot Engine
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ./docs/res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Acerca de GDCubism
+
+Este software (GDCubism) es una GDExtension **no oficial** que hace accesible el link:https://www.live2d.com/download/cubism-sdk/[Live2D Cubism SDK] desde GDScript o C#.
+
+[NOTE]
+====
+Esta GDExtension está disponible para Godot Engine 4.3 y superior. (Si deseas usarla con versiones 4.1 o 4.2, usa link:https://github.com/MizunagiKB/gd_cubism/releases/tag/v0.8.2-godot4.1[v0.8.2-godot4.1])
+====
+
+[IMPORTANT]
+====
+A partir de la versión 0.9, el método de renderizado se cambió a renderizado directo, reduciendo significativamente la carga de procesamiento en Godot Engine y el consumo de memoria GPU.
+
+Sin embargo, este cambio introdujo varias modificaciones. La más notable es que _GDCubismUserModel_ ya no es un _SubViewport_.
+
+Si deseas manejarlo de la misma manera que antes, coloca _GDCubismUserModel_ bajo un _SubViewport_. (Como demostración de este cambio, se añadió el archivo demo `demo_fade.tscn`)
+====
+
+Internamente, GDCubism usa el link:https://github.com/Live2D/CubismNativeFramework[Cubism Native Framework] publicado por Live2D Inc.
+
+Por favor, no contactes al desarrollador ni a Live2D Inc. respecto a GDCubism.
+
+
+== Plataformas Soportadas
+
+[cols="2",frame=none,grid=none]
+|===
+>|Windows
+a|
+* x86_32
+* x86_64
+
+>|macOS
+a|
+* x86_64
+* arm64
+* universal
+
+>|Linux
+a|
+* x86_64
+
+>|iOS
+a|
+* arm64 (experimental)
+* universal (experimental)
+
+>|Android
+a|
+* armv7 (experimental)
+* arm64v8 (experimental)
+|===
+
+
+== Acerca de la Licencia
+
+[NOTE]
+====
+GDCubism, al enlazarse con librerías externas dependientes, resulta en licencias con condiciones de uso diferentes. +
+Si estás considerando distribuir o vender un producto que incorpore GDCubism, por favor revisa las licencias listadas en la siguiente página.
+====
+
+* xref:es/license.adoc[]
+
+
+== Cómo Compilar
+
+* xref:es/build.adoc[]
+
+
+== Uso
+
+* xref:es/usage.adoc[]
+
+
+== Enlaces Relacionados
+
+* link:https://www.live2d.com/[Live2D Cubism]
+* link:https://www.live2d.com/download/cubism-sdk/[Live2D Cubism SDK]
+* link:https://github.com/Live2D[Live2D (GitHub)]
+* link:https://github.com/Live2D/CubismNativeFramework[CubismNativeFramework (GitHub)]
+* link:https://github.com/MizunagiKB/gd_cubism[MizunagiKB / gd_cubism (GitHub)]

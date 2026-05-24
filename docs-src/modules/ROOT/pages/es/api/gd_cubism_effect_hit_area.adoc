@@ -1,0 +1,90 @@
+= GDCubismEffectHitArea
+:encoding: utf-8
+:lang: es
+:author: MizunagiKB <mizukb@live.jp>
+:copyright: 2023 MizunagiKB
+:doctype: book
+:source-highlighter: highlight.js
+:icons: font
+:experimental:
+:stylesdir: ../../res/theme/css
+:stylesheet: mizunagi-works.css
+ifdef::env-github,env-vscode[]
+:adocsuffix: .adoc
+endif::env-github,env-vscode[]
+ifndef::env-github,env-vscode[]
+:adocsuffix: .html
+endif::env-github,env-vscode[]
+
+
+== Desc
+
+Al colocarlo como elemento hijo de xref:./gd_cubism_user_model.adoc[], puedes manejar el _HitArea_ configurado en el modelo Live2D.
+
+_HitArea_ está compuesto por cualquier _Triángulo_. Esto permite expresar formas complejas, pero en la clase _GDCubismEffectHitArea_, se trata como una caja (_Rect2_) que contiene los vértices que componen el _Triángulo_.
+
+Si deseas determinar a nivel de _Triángulo_, puedes hacerlo usando la función _get_detail_ después de recibir la señal _hit_area_entered_.
+
+
+== Properties
+
+[cols="3",frame=none,grid=none]
+|===
+>|bool <|monitoring |[default: true]
+|===
+
+
+== Methods
+
+[cols="2",frame=none,grid=none]
+|===
+>|Dictionary <|get_detail(model: GDCubismUserModel, id: String)
+>|Vector2 <|get_target()
+>|void <|set_target(target: Vector2)
+|===
+
+
+== Signals
+
+hit_area_entered(model: GDCubismUserModel, id: String)::
+Se llama cuando el _HitArea_ del modelo Live2D se encuentra en el punto especificado por _set_target_. +
+El comportamiento cambia de la siguiente manera según el estado de _monitoring_.
+* En caso de _true_ ... No se llamará hasta que _set_target_ salga del _HitArea_ después de ser llamado.
+* En caso de _false_ ... Se llamará cualquier número de veces mientras _set_target_ esté dentro del _HitArea_.
+
+hit_area_exited(model: GDCubismUserModel, id: String)::
+Se llama cuando _set_target_ queda fuera del rango del _HitArea_ después de llamar a _hit_area_entered_. +
+Esta señal tiene la posibilidad de ser llamada después de _hit_area_entered_, independientemente del estado de _monitoring_, y solo se llama una vez.
+
+
+== Enumerations
+== Constants
+== Property Descriptions
+
+bool monitoring [default: true]::
+Cambia el comportamiento de la señal _hit_area_entered_.
+
+
+== Method Descriptions
+
+Dictionary get_detail(model: GDCubismUserModel, id: String)::
+Puedes obtener información más detallada en el momento de _hit_area_entered_. +
+La información obtenida tiene tres tipos de estados dependiendo del resultado de la evaluación entre el punto especificado por _set_target_ y la _malla_ especificada por _id_.
+
+_Dictionary_ no contiene nada:::
+No hay nada en el lugar especificado por _set_target_.
+
+_Dictionary_ contiene _rect: Rect2_:::
+El lugar especificado por _set_target_ está dentro de _rect_, pero no dentro del _Triángulo_.
+
+_Dictionary_ contiene _rect: Rect2_ y _vertices: Array_:::
+El lugar especificado por _set_target_ está dentro de _rect_ y dentro del _Triángulo_.
+
+
+Vector2 get_target()::
+Obtiene el punto especificado por _set_target_.
+
+void set_target(target: Vector2)::
+Puedes realizar detección de contacto con HitArea y las coordenadas especificadas. +
+Llamar a _set_target_ una vez se considera un clic. +
+Llamarlo continuamente se considera una operación de arrastre.
