@@ -137,7 +137,17 @@ thirdparty/CubismSdkForNative-5-r.x/
 └── Samples/
 ```
 
-### 3. Compilar
+### 3. Agregar el paquete de NativeCubismFramework
+
+Descarga desde el repositorio oficial:
+
+```bash
+pushd thirdparty
+git clone https://github.com/Live2D/CubismNativeFramework.git
+popd
+```
+
+### 4. Compilar
 
 #### Windows
 
