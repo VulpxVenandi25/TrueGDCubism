@@ -106,7 +106,7 @@ TrueGDCubism/
 
 ## Inicio Rápido (Usando Binarios Precompilados)
 
-1. **Descarga** la última versión desde la [página de Releases](https://github.com/MizunagiKB/gd_cubism/releases) (o usa los DLLs precompilados en `demo/addons/gd_cubism/bin/`)
+1. **Descarga** la última versión desde la [página de Releases](https://github.com/VulpxVenandi25/TrueGDCubism) (o usa los DLLs precompilados en `demo/addons/gd_cubism/bin/`)
 2. **Copia** la carpeta `addons/gd_cubism/` al directorio `addons/` de tu proyecto Godot
 3. **Activa** el addon en Godot: Proyecto → Configuración del Proyecto → Plugins → Activar GDCubism
 4. **Añade un modelo Live2D:**
@@ -121,7 +121,7 @@ TrueGDCubism/
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/MizunagiKB/gd_cubism.git
+git clone https://github.com/VulpxVenandi25/TrueGDCubism.git
 cd gd_cubism
 git submodule update --init
 ```
@@ -313,7 +313,7 @@ Documentación API completa (AsciiDoc) disponible en `docs-src/modules/ROOT/page
 
 Este proyecto está bajo la **Licencia MIT** — ver el archivo [LICENSE](LICENSE) para más detalles.
 
-Copyright (c) 2023 MizunagiKB <mizukb@live.jp>
+Copyright (c) 2026 VulpxVenandi25
 
 ### Licencias de Terceros
 
